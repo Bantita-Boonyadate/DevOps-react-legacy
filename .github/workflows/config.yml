@@ -1,0 +1,39 @@
+name: Github actions CI
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+env:
+  DOCKER_USER: ${{secrets.DOCKER_USER}}
+  DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+  REPO_NAME: devops-docker-hub
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: node:16
+    steps:
+      - name: Check code
+        uses: actions/checkout@v3
+
+      - name: Install dependency
+        run: yarn
+  push-image-to-docker-hub:
+    needs:  build
+    runs-on: ubuntu-latest  
+    steps:
+      - uses: actions/checkout@v2 
+      - name: Docker login
+        run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD  
+      - name: Pull code
+        run: docker pull $DOCKER_USER/$REPO_NAME:latest
+      - name: Get current date 
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
+      - name: Build the Docker image 
+        run: docker build . --file Dockerfile --tag $DOCKER_USER/$REPO_NAME:latest
+      - name: Docker Push
+        run: docker push $DOCKER_USER/$REPO_NAME:latest
