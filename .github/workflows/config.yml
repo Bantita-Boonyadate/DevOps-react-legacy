@@ -9,11 +9,11 @@ on:
     branches: [ develop ]
   pull_request:
     branches: [ develop ]
-    
+
 env:
   DOCKER_USER: ${{secrets.DOCKER_USER}}
   DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-  REPO_NAME: docker-push-production
+  REPO_NAME: devops-docker-hub
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -31,10 +31,10 @@ jobs:
     runs-on: ubuntu-latest  
     steps:
       - uses: actions/checkout@v2 
-      - name: docker login
+      - name: Docker login
         run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD  
-      - name: pull code
-        run: docker pull tharinee35033/docker-push-production:latest
+      - name: Pull code
+        run: docker pull $DOCKER_USER/$REPO_NAME:latest
       - name: Get current date 
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
